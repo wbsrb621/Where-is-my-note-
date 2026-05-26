@@ -324,7 +324,7 @@ body.widget-position-left .widget-note-created-time {
   text-overflow: ellipsis;
   white-space: nowrap;
   writing-mode: vertical-rl;
-  text-orientation: mixed;
+  text-orientation: upright;
   z-index: 1;
 }
 
@@ -355,6 +355,14 @@ body.widget-position-left .widget-note:hover h3,
 body.widget-position-left .widget-note:focus-within h3,
 body.widget-position-left .widget-note.editing h3 {
   margin: 0 0 8px 42px;
+}
+
+.widget-note:not(:hover):not(:focus-within):not(.editing) .editable-content,
+.widget-note:not(:hover):not(:focus-within):not(.editing) .widget-note-dates,
+.widget-note:not(:hover):not(:focus-within):not(.editing) .widget-actions,
+.widget-note:not(:hover):not(:focus-within):not(.editing) .widget-format-toolbar {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .editable-content {
