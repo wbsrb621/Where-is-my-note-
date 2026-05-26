@@ -103,6 +103,7 @@ const els = {
   titleSortBtn: document.getElementById("titleSortBtn"),
   titleSortMark: document.getElementById("titleSortMark"),
   importanceSortBtn: document.getElementById("importanceSortBtn"),
+  periodSortBtn: document.getElementById("periodSortBtn"),
   searchInput: document.getElementById("searchInput"),
   panelTitle: document.getElementById("panelTitle"),
   panelCloseBtn: document.getElementById("panelCloseBtn"),
@@ -798,9 +799,27 @@ function visibleNotesForGroup(group) {
       return appState.sortDirection === "asc" ? result : -result;
     }
 
+    if (appState.sortMode === "period") {
+      const aEndTime = getNoteEndDateTime(a);
+      const bEndTime = getNoteEndDateTime(b);
+      const aHasPeriod = Number.isFinite(aEndTime);
+      const bHasPeriod = Number.isFinite(bEndTime);
+      if (aHasPeriod && !bHasPeriod) return -1;
+      if (!aHasPeriod && bHasPeriod) return 1;
+      const result = aEndTime - bEndTime;
+      if (result !== 0) return appState.sortDirection === "asc" ? result : -result;
+    }
+
     const result = new Date(a.createdAt || a.updatedAt || 0) - new Date(b.createdAt || b.updatedAt || 0);
     return appState.sortDirection === "asc" ? result : -result;
   });
+}
+
+function getNoteEndDateTime(note) {
+  const dateKey = note?.endDate || note?.startDate || "";
+  if (!dateKey) return Number.POSITIVE_INFINITY;
+  const time = new Date(`${dateKey}T23:59:59`).getTime();
+  return Number.isNaN(time) ? Number.POSITIVE_INFINITY : time;
 }
 
 function getLocalDateKey(value = new Date()) {
@@ -2615,15 +2634,17 @@ function lockCreateGroupSelection(groupId, groupName = null) {
 }
 
 function renderSortButtons() {
-  const buttons = [els.createdSortBtn, els.titleSortBtn, els.importanceSortBtn];
+  const buttons = [els.createdSortBtn, els.titleSortBtn, els.importanceSortBtn, els.periodSortBtn];
   buttons.forEach((button) => button.classList.remove("active", "asc", "desc"));
 
   els.createdSortBtn.classList.toggle("active", appState.sortMode === "created");
   els.titleSortBtn.classList.toggle("active", appState.sortMode === "title");
   els.importanceSortBtn.classList.toggle("active", appState.sortMode === "importance");
+  els.periodSortBtn.classList.toggle("active", appState.sortMode === "period");
 
   els.createdSortBtn.classList.add(appState.sortMode === "created" ? appState.sortDirection : "desc");
   els.importanceSortBtn.classList.add(appState.sortMode === "importance" ? appState.sortDirection : "desc");
+  els.periodSortBtn.classList.add(appState.sortMode === "period" ? appState.sortDirection : "asc");
 
   const titleMarks = ["ㄱㄴ↓", "ㄱㄴ↑", "ABC↓", "ABC↑"];
   els.titleSortMark.textContent = titleMarks[appState.titleSortStep] || titleMarks[0];
@@ -3250,6 +3271,15 @@ function bindEvents() {
       appState.sortDirection = appState.sortDirection === "asc" ? "desc" : "asc";
     } else {
       appState.sortMode = "importance";
+      appState.sortDirection = "asc";
+    }
+    render();
+  });
+  els.periodSortBtn.addEventListener("click", () => {
+    if (appState.sortMode === "period") {
+      appState.sortDirection = appState.sortDirection === "asc" ? "desc" : "asc";
+    } else {
+      appState.sortMode = "period";
       appState.sortDirection = "asc";
     }
     render();
