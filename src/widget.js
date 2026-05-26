@@ -140,12 +140,14 @@ function sanitizeMemoHtml(value = "") {
 
 function normalizeWidgetHtml(html = "") {
   return sanitizeMemoHtml(html)
-    .replace(/<\/div>\s*<div>/gi, "")
-    .replace(/<\/p>\s*<p>/gi, "")
+    .replace(/<\/div>\s*<div>/gi, "<br>")
+    .replace(/<\/p>\s*<p>/gi, "<br>")
     .replace(/<div>/gi, "")
-    .replace(/<\/div>/gi, "")
+    .replace(/<\/div>/gi, "<br>")
     .replace(/<p>/gi, "")
-    .replace(/<\/p>/gi, "");
+    .replace(/<\/p>/gi, "<br>")
+    .replace(/(<br\s*\/?>\s*){3,}/gi, "<br><br>")
+    .replace(/^(<br\s*\/?>\s*)+|(\s*<br\s*\/?>)+$/gi, "");
 }
 
 function formatWidgetCreatedTime(value) {
