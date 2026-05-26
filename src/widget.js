@@ -2,6 +2,7 @@ const widgetList = document.getElementById("widgetList");
 const widgetPager = document.getElementById("widgetPager");
 const widgetPrevPageBtn = document.getElementById("widgetPrevPageBtn");
 const widgetNextPageBtn = document.getElementById("widgetNextPageBtn");
+const widgetAddNoteBtn = document.getElementById("widgetAddNoteBtn");
 const openMainBtn = document.getElementById("openMainBtn");
 const widgetCommandDrawer = document.querySelector(".widget-command-drawer");
 const widgetDrawerTrigger = document.querySelector(".widget-drawer-trigger");
@@ -69,6 +70,10 @@ function getWidgetPageCount(notes = currentPinnedNotes) {
   return Math.max(1, Math.ceil(notes.length / getWidgetPageSize()));
 }
 
+function uid(prefix = "id") {
+  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
 function clampWidgetPage(notes = currentPinnedNotes) {
   const pageCount = getWidgetPageCount(notes);
   currentWidgetPage = Math.max(0, Math.min(currentWidgetPage, pageCount - 1));
@@ -83,7 +88,7 @@ function setWidgetMouseIgnoring(shouldIgnore) {
 
 function isWidgetInteractiveTarget(target) {
   return Boolean(target?.closest?.(
-    ".widget-note, .widget-pager, .widget-command-drawer, .widget-command-panel, .widget-quit-menu, .widget-font-size-menu"
+    ".widget-note, .widget-pager, .widget-add-note-button, .widget-command-drawer, .widget-command-panel, .widget-quit-menu, .widget-font-size-menu"
   ));
 }
 
@@ -432,6 +437,35 @@ function renderPinnedNotes(notes) {
   });
 }
 
+async function addBlankWidgetNote() {
+  finishCurrentEditing();
+
+  const now = new Date().toISOString();
+  const group = appData.groups[0] || null;
+  const note = {
+    id: uid("note"),
+    groupId: group?.id || null,
+    title: "",
+    content: "",
+    contentHtml: "",
+    importance: 0,
+    favorite: false,
+    pinned: true,
+    textColor: "#333333",
+    memoColor: "#ffffff",
+    startDate: "",
+    endDate: "",
+    createdAt: now,
+    updatedAt: now
+  };
+
+  appData.notes.push(note);
+  await window.wmn.saveData(appData);
+  const pinnedNotes = appData.notes.filter((item) => item.pinned);
+  currentWidgetPage = getWidgetPageCount(pinnedNotes) - 1;
+  renderPinnedNotes(pinnedNotes);
+}
+
 function bindDragEvents(card) {
   card.addEventListener("dragstart", (event) => {
     if (editingNoteId || event.target.closest(".widget-actions, .editable-title, .editable-content")) {
@@ -774,6 +808,10 @@ requestAnimationFrame(refreshWidgetCommandDirection);
 
 widgetPrevPageBtn.addEventListener("click", () => goToWidgetPage(-1));
 widgetNextPageBtn.addEventListener("click", () => goToWidgetPage(1));
+widgetAddNoteBtn.addEventListener("click", async (event) => {
+  event.preventDefault();
+  await addBlankWidgetNote();
+});
 widgetPrevPageBtn.addEventListener("dragover", (event) => {
   if (!draggedNoteId) return;
   event.preventDefault();
