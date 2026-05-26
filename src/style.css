@@ -1700,7 +1700,11 @@ body.panel-open.edit-panel-open #memoPanel {
   background: transparent;
   font-size: 12px;
   padding: 0 0 18px;
-  cursor: inherit;
+  cursor: pointer;
+}
+
+.importance-control button:hover {
+  color: var(--text);
 }
 
 .importance-control button::after {

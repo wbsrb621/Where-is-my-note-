@@ -2930,20 +2930,26 @@ function renderImportance() {
 function renderImportanceInto(container, state, rerender) {
   container.replaceChildren();
 
+  const setImportance = (index) => {
+    const nextIndex = Math.min(importanceColors.length - 1, Math.max(0, Number(index) || 0));
+    if (state.importance === nextIndex) return;
+
+    state.importance = nextIndex;
+    rerender();
+  };
+
   const setImportanceFromPointer = (event, rect) => {
     const relativeX = Math.min(Math.max(event.clientX - rect.left, 0), rect.width);
     const stepWidth = rect.width / importanceColors.length;
     const index = Math.min(importanceColors.length - 1, Math.max(0, Math.floor(relativeX / stepWidth)));
-    if (state.importance === index) return;
-
-    state.importance = index;
-    rerender();
+    setImportance(index);
   };
 
   container.addEventListener("pointerdown", (event) => {
     event.preventDefault();
     const rect = container.getBoundingClientRect();
     container.setPointerCapture?.(event.pointerId);
+    setImportanceFromPointer(event, rect);
 
     const handlePointerMove = (moveEvent) => {
       setImportanceFromPointer(moveEvent, rect);
@@ -2964,6 +2970,10 @@ function renderImportanceInto(container, state, rerender) {
     button.style.color = color;
     button.style.setProperty("--importance-color", color);
     button.classList.toggle("active", state.importance === index);
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      setImportance(index);
+    });
     container.append(button);
   });
 }
