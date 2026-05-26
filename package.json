@@ -1,6 +1,6 @@
 {
   "name": "where-is-my-note",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Windows desktop memo manager with pinned desktop widgets.",
   "main": "main.js",
   "scripts": {

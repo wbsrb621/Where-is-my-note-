@@ -2070,20 +2070,28 @@ body.panel-open.edit-panel-open #memoPanel {
 .settings-info-row {
   min-height: 62px;
   padding: 14px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
 }
 
+.settings-version-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
 .settings-update-row {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
-  margin-top: 8px;
+  min-width: 0;
 }
 
 .settings-update-row .settings-action-button {
@@ -2092,6 +2100,8 @@ body.panel-open.edit-panel-open #memoPanel {
 
 .settings-update-row span {
   margin-top: 0;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .settings-section-title {
