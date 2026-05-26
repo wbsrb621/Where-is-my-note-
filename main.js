@@ -233,7 +233,7 @@ async function installAvailableUpdate() {
   if (!updateState.updateAvailable) return getUpdateState();
 
   if (updateState.status === "downloaded") {
-    autoUpdater.quitAndInstall(false, true);
+    autoUpdater.quitAndInstall(true, true);
     return setUpdateState({ status: "installing", message: "업데이트 설치를 시작합니다." });
   }
 
@@ -305,7 +305,7 @@ function configureAutoUpdater() {
       message: "다운로드 완료. 업데이트를 설치합니다.",
       progress: 100
     });
-    setTimeout(() => autoUpdater.quitAndInstall(false, true), 500);
+    setTimeout(() => autoUpdater.quitAndInstall(true, true), 500);
   });
 
   autoUpdater.on("error", (error) => {
