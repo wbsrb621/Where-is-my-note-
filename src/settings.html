@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>설정</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body class="settings-window-body">
+    <div class="settings-dialog settings-window-dialog">
+      <div class="settings-header">
+        <div>
+          <h3>설정</h3>
+          <p>프로그램 환경을 관리합니다.</p>
+        </div>
+        <button id="settingsWindowCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+      </div>
+
+      <div class="settings-layout">
+        <section class="settings-content">
+          <div class="settings-section">
+            <div class="settings-section-title">
+              <h4>위젯</h4>
+              <span>바탕화면 위젯 표시 방식</span>
+            </div>
+            <div class="settings-row">
+              <div>
+                <strong>위젯 표시</strong>
+                <span>바탕화면 위젯을 사용합니다.</span>
+              </div>
+              <label class="settings-switch">
+                <input id="widgetEnabledSetting" type="checkbox" />
+                <span></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <div>
+                <strong>위젯 항상 위</strong>
+                <span>다른 창 위에 위젯을 고정합니다.</span>
+              </div>
+              <label class="settings-switch">
+                <input id="widgetAlwaysOnTopSetting" type="checkbox" />
+                <span></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <div>
+                <strong>메모 크기</strong>
+                <span>위젯에 표시되는 메모의 높이를 조절합니다.</span>
+              </div>
+              <label class="settings-slider">
+                <input id="widgetNoteHeightSetting" type="range" min="80" max="220" step="4" />
+                <span id="widgetNoteHeightValue">104px</span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <div>
+                <strong>위젯 디스플레이</strong>
+                <span>위젯을 표시할 모니터를 선택합니다.</span>
+              </div>
+              <select id="widgetDisplaySetting" class="settings-select"></select>
+            </div>
+            <div class="settings-row">
+              <div>
+                <strong>위젯 위치</strong>
+                <span>화면 가장자리에서 위젯이 나타나는 방향입니다.</span>
+              </div>
+              <div class="settings-segment">
+                <button id="widgetPositionLeftSetting" type="button" data-position="left">왼쪽</button>
+                <button id="widgetPositionRightSetting" class="active" type="button" data-position="right">오른쪽</button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">
+              <h4>데이터</h4>
+              <span>메모와 설정 데이터를 저장하거나 불러옵니다.</span>
+            </div>
+            <div class="settings-row">
+              <div>
+                <strong>데이터 저장</strong>
+                <span>현재 모든 메모, 그룹, 설정을 세이브파일로 내보냅니다.</span>
+              </div>
+              <div class="settings-action-group">
+                <button id="exportDataBtn" class="settings-action-button" type="button">저장</button>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div>
+                <strong>데이터 불러오기</strong>
+                <span>저장해둔 세이브파일을 불러와 현재 데이터를 교체합니다.</span>
+              </div>
+              <div class="settings-action-group">
+                <button id="importDataBtn" class="settings-action-button" type="button">불러오기</button>
+              </div>
+            </div>
+            <div id="dataStatusText" class="settings-status-row" aria-live="polite"></div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">
+              <h4>버전정보</h4>
+              <span>프로그램 정보</span>
+            </div>
+            <div class="settings-info-row">
+              <span id="appVersionText">ver.1.0.0</span>
+              <span>제작자 : @j_glim</span>
+              <div class="settings-update-row">
+                <button id="updateAppBtn" class="settings-action-button" type="button" disabled>업데이트</button>
+                <span id="updateStatusText">업데이트 확인 전입니다.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="importConfirmDialog" class="dialog-backdrop settings-backdrop hidden">
+      <div class="dialog settings-confirm-dialog">
+        <div class="dialog-header">
+          <h3>데이터 불러오기</h3>
+          <button id="importConfirmCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+        </div>
+        <p>세이브파일을 불러오면 현재 데이터가 불러온 데이터로 교체됩니다. 계속할까요?</p>
+        <div class="dialog-actions">
+          <button id="importConfirmApplyBtn" class="submit-button compact danger-button" type="button">불러오기</button>
+          <button id="importConfirmCancelBtn" class="cancel-button compact" type="button">취소</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./settings.js"></script>
+  </body>
+</html>

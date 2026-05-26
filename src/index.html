@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Where is my note?</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="titlebar">
+        <div class="app-title">Where is my note?</div>
+        <div class="window-actions">
+          <button id="settingsBtn" class="icon-button image-icon-button" title="설정">
+            <img src="../assets/icons/settings.png" alt="" />
+          </button>
+          <button id="minimizeBtn" class="icon-button" title="최소화">－</button>
+          <button id="maximizeBtn" class="icon-button" title="최대화">□</button>
+          <button id="closeWindowBtn" class="icon-button" title="닫기">×</button>
+        </div>
+      </header>
+
+      <main class="app-body">
+        <section class="memo-list">
+          <div class="list-toolbar">
+            <div class="heading-row">
+              <div class="heading-title">
+                <h1>Note</h1>
+                <button id="newGroupBtn" class="new-group-button" title="새 그룹 추가">+</button>
+              </div>
+              <span id="currentViewLabel" class="current-view-label">그룹보기</span>
+            </div>
+          </div>
+
+          <div class="search-toolbar">
+            <div class="sort-area">
+              <span class="sort-label">정렬 기준 :</span>
+              <button id="createdSortBtn" class="sort-button active" type="button">
+                <span>등록 순</span>
+                <span class="dual-arrows">
+                  <span data-arrow="asc">↑</span>
+                  <span data-arrow="desc">↓</span>
+                </span>
+              </button>
+              <button id="titleSortBtn" class="sort-button" type="button">
+                <span>제목 순</span>
+                <span id="titleSortMark" class="sort-mark">ㄱㄴ↓</span>
+              </button>
+              <button id="importanceSortBtn" class="sort-button" type="button">
+                <span>중요도 순</span>
+                <span class="dual-arrows">
+                  <span data-arrow="asc">↑</span>
+                  <span data-arrow="desc">↓</span>
+                </span>
+              </button>
+            </div>
+
+            <label class="search-box">
+              <input id="searchInput" type="search" placeholder="메모 검색 ..." />
+              <span>⌕</span>
+            </label>
+          </div>
+
+          <div id="groupsContainer" class="groups-container"></div>
+
+          <footer class="memo-list-footer">
+            <div class="view-toggle" aria-label="보기 방식">
+              <button id="groupViewBtn" class="view-icon-button view-group-icon" type="button" title="그룹으로 보기"></button>
+              <button id="calendarViewBtn" class="view-icon-button view-calendar-icon" type="button" title="달력보기"></button>
+              <button id="allViewBtn" class="view-icon-button view-all-icon" type="button" title="전체보기"></button>
+            </div>
+            <label class="card-size-control" title="메모지 크기">
+              <span>메모지 크기 :</span>
+              <input id="cardSizeSlider" type="range" min="100" max="420" value="420" />
+            </label>
+            <button id="trashViewBtn" class="trash-view-button trash-icon-button" type="button" title="휴지통"></button>
+          </footer>
+        </section>
+
+        <div id="panelResizeHandle" class="panel-resize-handle" title="가로 너비 조절"></div>
+
+        <aside id="memoPanel" class="memo-panel" aria-hidden="true">
+          <div class="panel-header">
+            <h2 id="panelTitle">새 메모 추가</h2>
+            <button id="panelCloseBtn" class="icon-button dark" title="닫기">×</button>
+          </div>
+
+          <form id="memoForm" class="memo-form">
+            <div class="memo-form-scroll">
+            <label>
+              <span>그룹 선택</span>
+              <div class="custom-select" id="groupPicker">
+                <select id="groupSelect" class="native-hidden-select" tabindex="-1"></select>
+                <button id="groupPickerButton" class="custom-select-button" type="button">
+                  <span id="groupPickerLabel"></span>
+                  <span class="custom-select-arrow">▾</span>
+                </button>
+                <div id="groupPickerMenu" class="custom-select-menu hidden"></div>
+              </div>
+            </label>
+
+            <div class="field">
+              <span>중요도</span>
+              <div id="importanceControl" class="importance-control"></div>
+            </div>
+
+            <div class="field inline-field">
+              <span>즐겨찾기</span>
+              <button id="favoriteBtn" type="button" class="favorite-button"></button>
+            </div>
+
+            <div class="field">
+              <span>기간</span>
+              <div class="date-row">
+                <input id="startDateInput" type="date" />
+                <input id="endDateInput" type="date" />
+              </div>
+            </div>
+
+            <label>
+              <span>제목</span>
+              <input id="titleInput" type="text" maxlength="80" />
+            </label>
+
+            <div class="field rich-editor-field">
+              <span>내용</span>
+              <div class="rich-editor-wrap">
+                <div id="contentFormatToolbar" class="form-format-toolbar"></div>
+                <div id="contentInput" class="form-rich-editor" contenteditable="true"></div>
+              </div>
+            </div>
+
+            <div class="field">
+              <span>텍스트 컬러</span>
+              <div id="textPalette" class="palette"></div>
+            </div>
+
+            <div class="field">
+              <span>메모지 컬러</span>
+              <div id="memoPalette" class="palette"></div>
+            </div>
+            </div>
+
+            <div class="form-submit-bar">
+              <button id="submitBtn" type="submit" class="submit-button">메모 추가</button>
+            </div>
+          </form>
+        </aside>
+
+        <aside id="editMemoPanel" class="memo-panel edit-memo-panel" aria-hidden="true">
+          <div class="panel-header">
+            <h2>메모 수정</h2>
+            <button id="editPanelCloseBtn" class="icon-button dark" title="닫기">×</button>
+          </div>
+
+          <form id="editMemoForm" class="memo-form">
+            <div class="memo-form-scroll">
+            <label>
+              <span>그룹 선택</span>
+              <div class="custom-select" id="editGroupPicker">
+                <select id="editGroupSelect" class="native-hidden-select" tabindex="-1"></select>
+                <button id="editGroupPickerButton" class="custom-select-button" type="button">
+                  <span id="editGroupPickerLabel"></span>
+                  <span class="custom-select-arrow">▾</span>
+                </button>
+                <div id="editGroupPickerMenu" class="custom-select-menu hidden"></div>
+              </div>
+            </label>
+
+            <div class="field">
+              <span>중요도</span>
+              <div id="editImportanceControl" class="importance-control"></div>
+            </div>
+
+            <div class="field inline-field">
+              <span>즐겨찾기</span>
+              <button id="editFavoriteBtn" type="button" class="favorite-button"></button>
+            </div>
+
+            <div class="field">
+              <span>기간</span>
+              <div class="date-row">
+                <input id="editStartDateInput" type="date" />
+                <input id="editEndDateInput" type="date" />
+              </div>
+            </div>
+
+            <label>
+              <span>제목</span>
+              <input id="editTitleInput" type="text" maxlength="80" />
+            </label>
+
+            <div class="field rich-editor-field">
+              <span>내용</span>
+              <div class="rich-editor-wrap">
+                <div id="editContentFormatToolbar" class="form-format-toolbar"></div>
+                <div id="editContentInput" class="form-rich-editor" contenteditable="true"></div>
+              </div>
+            </div>
+
+            <div class="field">
+              <span>텍스트 컬러</span>
+              <div id="editTextPalette" class="palette"></div>
+            </div>
+
+            <div class="field">
+              <span>메모지 컬러</span>
+              <div id="editMemoPalette" class="palette"></div>
+            </div>
+            </div>
+
+            <div class="form-submit-bar">
+              <button type="submit" class="submit-button">메모 수정</button>
+            </div>
+          </form>
+        </aside>
+      </main>
+    </div>
+
+    <div id="confirmDialog" class="dialog-backdrop hidden">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3>작성 취소</h3>
+          <button id="confirmDialogCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+        </div>
+        <p>작성 중인 내용이 있습니다. 닫으시겠습니까?</p>
+        <div class="dialog-actions">
+          <button id="cancelCloseBtn" class="pill-button">취소</button>
+          <button id="confirmCloseBtn" class="submit-button compact">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="quitDialog" class="dialog-backdrop hidden">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3>프로그램 종료</h3>
+          <button id="quitDialogCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+        </div>
+        <p>프로그램을 종료하시겠습니까?</p>
+        <div class="dialog-actions">
+          <button id="closeMainOnlyBtn" class="pill-button">창 닫기</button>
+          <button id="quitAppBtn" class="submit-button compact">프로그램 종료</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="deleteGroupDialog" class="dialog-backdrop hidden">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3>그룹 삭제</h3>
+          <button id="deleteGroupDialogCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+        </div>
+        <p>해당 그룹을 삭제하시겠습니까?<br />해당 그룹의 모든 메모들은 휴지통으로 이동됩니다.</p>
+        <div class="dialog-actions">
+          <button id="confirmDeleteGroupBtn" class="submit-button compact danger-button">확인</button>
+          <button id="cancelDeleteGroupBtn" class="pill-button">취소</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="addGroupDialog" class="dialog-backdrop hidden">
+      <form id="addGroupForm" class="dialog">
+        <div class="dialog-header">
+          <h3>그룹 추가</h3>
+          <button id="addGroupDialogCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+        </div>
+        <label class="dialog-field">
+          <span>그룹명</span>
+          <input id="addGroupNameInput" type="text" maxlength="40" autocomplete="off" placeholder="새 그룹" />
+        </label>
+        <div class="dialog-actions">
+          <button type="submit" class="submit-button compact">확인</button>
+          <button id="cancelAddGroupBtn" type="button" class="pill-button">취소</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="deleteNoteDialog" class="dialog-backdrop hidden">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3>메모 삭제</h3>
+          <button id="deleteNoteDialogCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+        </div>
+        <p>해당 메모를 삭제하겠습니까?<br />삭제한 메모는 휴지통으로 갑니다.</p>
+        <div class="dialog-actions">
+          <button id="confirmDeleteNoteBtn" class="submit-button compact danger-button">확인</button>
+          <button id="cancelDeleteNoteBtn" class="pill-button">취소</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="emptyTrashDialog" class="dialog-backdrop hidden">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3>휴지통 비우기</h3>
+          <button id="emptyTrashDialogCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+        </div>
+        <p>휴지통을 비우겠습니까?<br />삭제된 메모는 다시 복구할 수 없습니다.</p>
+        <div class="dialog-actions">
+          <button id="confirmEmptyTrashBtn" class="submit-button compact danger-button">확인</button>
+          <button id="cancelEmptyTrashBtn" class="pill-button">취소</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="emptyTrashNoticeDialog" class="dialog-backdrop hidden">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3>휴지통</h3>
+          <button id="emptyTrashNoticeCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+        </div>
+        <p>휴지통이 이미 비어있습니다!</p>
+        <div class="dialog-actions">
+          <button id="emptyTrashNoticeOkBtn" class="submit-button compact">확인</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="settingsDialog" class="dialog-backdrop settings-backdrop hidden">
+      <div class="settings-dialog">
+        <div class="settings-header">
+          <div>
+            <h3>설정</h3>
+            <p>프로그램 환경을 관리합니다.</p>
+          </div>
+          <button id="settingsDialogCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+        </div>
+
+        <div class="settings-layout">
+          <section class="settings-content">
+            <div class="settings-section">
+              <div class="settings-section-title">
+                <h4>위젯</h4>
+                <span>바탕화면 위젯 표시 방식</span>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <strong>위젯 표시</strong>
+                  <span>바탕화면 위젯을 사용합니다.</span>
+                </div>
+                <label class="settings-switch">
+                  <input id="widgetEnabledSetting" type="checkbox" />
+                  <span></span>
+                </label>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <strong>위젯 항상 위</strong>
+                  <span>다른 창 위에 위젯을 고정합니다.</span>
+                </div>
+                <label class="settings-switch">
+                  <input id="widgetAlwaysOnTopSetting" type="checkbox" />
+                  <span></span>
+                </label>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <strong>메모 크기</strong>
+                  <span>위젯에 표시되는 메모의 높이를 조절합니다.</span>
+                </div>
+                <label class="settings-slider">
+                  <input id="widgetNoteHeightSetting" type="range" min="80" max="220" step="4" />
+                  <span id="widgetNoteHeightValue">104px</span>
+                </label>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <strong>위젯 디스플레이</strong>
+                  <span>위젯을 표시할 모니터를 선택합니다.</span>
+                </div>
+                <select id="widgetDisplaySetting" class="settings-select"></select>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <strong>위젯 위치</strong>
+                  <span>화면 가장자리에서 위젯이 나타나는 방향입니다.</span>
+                </div>
+                <div class="settings-segment">
+                  <button id="widgetPositionLeftSetting" type="button" data-position="left">왼쪽</button>
+                  <button id="widgetPositionRightSetting" class="active" type="button" data-position="right">오른쪽</button>
+                </div>
+              </div>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title">
+                <h4>데이터</h4>
+                <span>메모와 설정 데이터를 저장하거나 불러옵니다.</span>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <strong>데이터 저장</strong>
+                  <span>현재 모든 메모, 그룹, 설정을 세이브파일로 내보냅니다.</span>
+                </div>
+                <div class="settings-action-group">
+                  <button id="exportDataBtn" class="settings-action-button" type="button">저장</button>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <strong>데이터 불러오기</strong>
+                  <span>저장해둔 세이브파일을 불러와 현재 데이터를 교체합니다.</span>
+                </div>
+                <div class="settings-action-group">
+                  <button id="importDataBtn" class="settings-action-button" type="button">불러오기</button>
+                </div>
+              </div>
+              <div id="dataStatusText" class="settings-status-row" aria-live="polite"></div>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title">
+                <h4>버전정보</h4>
+                <span>프로그램 정보</span>
+              </div>
+              <div class="settings-info-row">
+                <span id="appVersionText">ver.1.0.0</span>
+                <span>제작자 : @j_glim</span>
+                <div class="settings-update-row">
+                  <button id="updateAppBtn" class="settings-action-button" type="button" disabled>업데이트</button>
+                  <span id="updateStatusText">업데이트 확인 전입니다.</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div id="importConfirmDialog" class="dialog-backdrop settings-backdrop hidden">
+      <div class="dialog settings-confirm-dialog">
+        <div class="dialog-header">
+          <h3>데이터 불러오기</h3>
+          <button id="importConfirmCloseBtn" type="button" class="dialog-close-button" title="닫기">×</button>
+        </div>
+        <p>세이브파일을 불러오면 현재 데이터가 불러온 데이터로 교체됩니다. 계속할까요?</p>
+        <div class="dialog-actions">
+          <button id="importConfirmApplyBtn" class="submit-button compact danger-button" type="button">불러오기</button>
+          <button id="importConfirmCancelBtn" class="cancel-button compact" type="button">취소</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./renderer.js?v=20260523-index-restore"></script>
+  </body>
+</html>

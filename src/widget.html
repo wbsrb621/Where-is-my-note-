@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinned Notes</title>
+    <link rel="stylesheet" href="./widget.css">
+  </head>
+  <body>
+    <div id="widgetList" class="widget-list"></div>
+    <div id="widgetPager" class="widget-pager hidden">
+      <button id="widgetPrevPageBtn" type="button" title="이전 페이지">&lt;</button>
+      <button id="widgetNextPageBtn" type="button" title="다음 페이지">&gt;</button>
+    </div>
+    <div class="widget-command-drawer">
+      <button class="widget-drawer-trigger" type="button" title="메뉴">▾</button>
+      <div class="widget-command-panel">
+        <button id="openMainBtn" class="widget-command-button widget-open-main-button" type="button" title="메인 창 열기"></button>
+        <button id="widgetSettingsBtn" class="widget-command-button image-widget-command-button" type="button" title="설정"></button>
+        <button id="widgetQuitBtn" class="widget-command-button widget-power-button" type="button" title="종료"></button>
+      </div>
+    </div>
+    <div id="widgetQuitMenu" class="widget-quit-menu hidden">
+      <button id="hideWidgetBtn" type="button">위젯 닫기</button>
+      <button id="quitAppFromWidgetBtn" type="button">프로그램 종료</button>
+    </div>
+    <script src="./widget.js"></script>
+  </body>
+</html>
