@@ -90,6 +90,7 @@ const appState = {
 };
 
 const els = {
+  memoList: document.querySelector(".memo-list"),
   groupsContainer: document.getElementById("groupsContainer"),
   newGroupBtn: document.getElementById("newGroupBtn"),
   currentViewLabel: document.getElementById("currentViewLabel"),
@@ -218,7 +219,9 @@ let pendingCreateGroupId = null;
 let pendingCreateGroupName = null;
 let inlineSelectionRange = null;
 let memoContextMenu = null;
+let listContextMenu = null;
 let contextMenuContent = null;
+let listContextTargetGroup = null;
 let createPanelToken = 0;
 
 const panelResize = {
@@ -2244,6 +2247,95 @@ function hideMemoContextMenu() {
   memoContextMenu?.classList.add("hidden");
 }
 
+function createListContextMenu() {
+  if (listContextMenu) return listContextMenu;
+
+  listContextMenu = document.createElement("div");
+  listContextMenu.className = "memo-context-menu memo-list-context-menu hidden";
+  listContextMenu.innerHTML = `
+    <button type="button" data-action="add-group"><span class="menu-icon">+</span><span>그룹 추가</span></button>
+    <button type="button" data-action="add-note"><span class="menu-icon">+</span><span>메모 추가</span></button>
+  `;
+  listContextMenu.addEventListener("mousedown", (event) => event.preventDefault());
+  listContextMenu.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    const action = button.dataset.action;
+    hideListContextMenu();
+
+    if (action === "add-group") {
+      openAddGroupDialog();
+      return;
+    }
+
+    if (action === "add-note") {
+      openCreatePanelForListContext();
+    }
+  });
+  document.body.append(listContextMenu);
+  return listContextMenu;
+}
+
+function resolveListContextGroup(target) {
+  const block = target.closest?.(".group-block");
+  if (!block || !els.memoList?.contains(block)) return null;
+
+  const groupId = block.dataset.groupId || "";
+  const group = appState.groups.find((item) => item.id === groupId);
+  if (group) return group;
+
+  if (groupId === "all" || groupId === "favorites") {
+    return appState.groups[0] || null;
+  }
+
+  return null;
+}
+
+function showListContextMenu(event) {
+  if (!els.memoList?.contains(event.target)) return;
+  if (event.target.closest(".note-card, .card-actions, .inline-format-toolbar, .memo-context-menu")) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation?.();
+  hideMemoContextMenu();
+  listContextTargetGroup = resolveListContextGroup(event.target);
+
+  const menu = createListContextMenu();
+  menu.classList.remove("hidden");
+  const width = menu.offsetWidth || 132;
+  const height = menu.offsetHeight || 72;
+  const x = Math.min(event.clientX, window.innerWidth - width - 8);
+  const y = Math.min(event.clientY, window.innerHeight - height - 8);
+  menu.style.left = `${Math.max(8, x)}px`;
+  menu.style.top = `${Math.max(8, y)}px`;
+}
+
+function openCreatePanelForListContext() {
+  const group = listContextTargetGroup || appState.groups[0] || null;
+  listContextTargetGroup = null;
+
+  if (!group) {
+    openCreatePanel();
+    return;
+  }
+
+  pendingCreateGroupId = group.id;
+  pendingCreateGroupName = group.name;
+  openCreatePanel(group.id, group.name);
+  forceCreateGroupSelection(group);
+  requestAnimationFrame(() => forceCreateGroupSelection(group));
+  setTimeout(() => forceCreateGroupSelection(group), 80);
+}
+
+function hideListContextMenu() {
+  listContextTargetGroup = null;
+  listContextMenu?.classList.add("hidden");
+}
+
 function startInlineNoteEdit(card, target, options = {}) {
   const noteId = card.dataset.noteId;
   if (appState.panelMode === "create") return;
@@ -3012,6 +3104,7 @@ async function submitAddGroup(event) {
 function bindEvents() {
   document.addEventListener("click", (event) => {
     hideMemoContextMenu();
+    hideListContextMenu();
     if (!event.target.closest(".font-size-control")) {
       closeInlineFontSizeMenus();
     }
@@ -3286,9 +3379,12 @@ function bindEvents() {
     handleNoteCardSelection(event);
   });
 
+  els.memoList?.addEventListener("contextmenu", showListContextMenu);
+
   document.addEventListener("mousedown", (event) => {
-    if (event.target.closest(".memo-context-menu")) return;
+    if (event.target.closest(".memo-context-menu, .memo-list-context-menu")) return;
     hideMemoContextMenu();
+    hideListContextMenu();
 
     if (!els.groupPicker.contains(event.target)) {
       closeGroupPicker();
