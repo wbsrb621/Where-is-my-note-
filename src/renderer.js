@@ -2284,12 +2284,19 @@ function resolveListContextGroup(target) {
   if (!block || !els.memoList?.contains(block)) return null;
 
   const groupId = block.dataset.groupId || "";
-  const group = appState.groups.find((item) => item.id === groupId);
-  if (group) return group;
-
   if (groupId === "all" || groupId === "favorites") {
     return appState.groups[0] || null;
   }
+
+  const group = appState.groups.find((item) => item.id === groupId);
+  if (group) return group;
+
+  const groupIndex = Number(block.dataset.groupIndex);
+  if (Number.isInteger(groupIndex) && appState.groups[groupIndex]) return appState.groups[groupIndex];
+
+  const groupName = block.dataset.groupName || block.querySelector(".group-title-row h2")?.textContent.trim() || "";
+  const matchedByName = appState.groups.find((item) => item.name === groupName);
+  if (matchedByName) return matchedByName;
 
   return null;
 }
@@ -2315,7 +2322,7 @@ function showListContextMenu(event) {
 }
 
 function openCreatePanelForListContext() {
-  const group = listContextTargetGroup || appState.groups[0] || null;
+  const group = listContextTargetGroup;
   listContextTargetGroup = null;
 
   if (!group) {
@@ -2329,6 +2336,7 @@ function openCreatePanelForListContext() {
   forceCreateGroupSelection(group);
   requestAnimationFrame(() => forceCreateGroupSelection(group));
   setTimeout(() => forceCreateGroupSelection(group), 80);
+  setTimeout(() => forceCreateGroupSelection(group), 220);
 }
 
 function hideListContextMenu() {
