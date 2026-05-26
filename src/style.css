@@ -2177,7 +2177,7 @@ body.panel-open.edit-panel-open #memoPanel {
 .settings-switch span::after {
   content: "";
   position: absolute;
-  top: 4px;
+  top: 8px;
   left: 4px;
   width: 16px;
   height: 16px;
