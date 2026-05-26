@@ -106,9 +106,17 @@ body.widget-position-left .widget-note.editing {
 .widget-note::before {
   content: "";
   position: absolute;
-  inset: 0 0 auto 0;
-  height: 4px;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 999px;
   background: var(--importance-color, #b8b8b8);
+}
+
+body.widget-position-left .widget-note::before {
+  left: auto;
+  right: 0;
 }
 
 .widget-note.dragging {
@@ -214,10 +222,6 @@ body.widget-position-left .widget-actions {
   left: 6px;
 }
 
-body.widget-position-left .widget-note h3 {
-  margin: 0 0 8px 42px;
-}
-
 body.widget-position-left .widget-note-dates {
   right: auto;
   left: 8px;
@@ -304,6 +308,11 @@ body.widget-position-left .widget-note-created-time {
 }
 
 .widget-note h3 {
+  position: absolute;
+  top: 12px;
+  right: 7px;
+  bottom: 12px;
+  width: 16px;
   margin: 0 42px 8px 0;
   min-height: 18px;
   border-radius: 4px;
@@ -311,6 +320,41 @@ body.widget-position-left .widget-note-created-time {
   line-height: 1.35;
   outline: 0;
   user-select: text;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  z-index: 1;
+}
+
+body.widget-position-left .widget-note h3 {
+  left: 7px;
+  right: auto;
+  margin: 0;
+}
+
+.widget-note:hover h3,
+.widget-note:focus-within h3,
+.widget-note.editing h3,
+body.widget-position-left .widget-note:hover h3,
+body.widget-position-left .widget-note:focus-within h3,
+body.widget-position-left .widget-note.editing h3 {
+  position: static;
+  width: auto;
+  min-height: 18px;
+  margin: 0 42px 8px 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+}
+
+body.widget-position-left .widget-note:hover h3,
+body.widget-position-left .widget-note:focus-within h3,
+body.widget-position-left .widget-note.editing h3 {
+  margin: 0 0 8px 42px;
 }
 
 .editable-content {
