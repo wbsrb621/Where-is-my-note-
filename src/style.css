@@ -239,9 +239,13 @@ body.resizing-panels .panel-resize-handle::before {
 }
 
 .current-view-label {
-  color: #555856;
-  font-size: 13px;
-  font-weight: 800;
+  cursor: default;
+  user-select: none;
+  color: #9b9d9b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  opacity: 0.82;
 }
 
 .search-toolbar {
