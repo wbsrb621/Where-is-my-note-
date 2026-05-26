@@ -220,6 +220,7 @@ let pendingCreateGroupName = null;
 let inlineSelectionRange = null;
 let memoContextMenu = null;
 let listContextMenu = null;
+let headingAddMenu = null;
 let contextMenuContent = null;
 let listContextTargetGroup = null;
 let createPanelToken = 0;
@@ -1228,7 +1229,13 @@ function createGroupBlock(group, notes = visibleNotesForGroup(group)) {
       startGroupRename(group.id, title);
     });
     editButton.className = "group-edit-button";
-    left.append(editButton);
+    const addNoteButton = actionButton("+", "메모 추가", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openCreatePanelForGroup(group);
+    });
+    addNoteButton.className = "group-edit-button group-header-add-button";
+    left.append(editButton, addNoteButton);
   }
 
   const controls = document.createElement("div");
@@ -2325,23 +2332,64 @@ function openCreatePanelForListContext() {
   const group = listContextTargetGroup;
   listContextTargetGroup = null;
 
-  if (!group) {
-    openCreatePanel();
-    return;
-  }
-
-  pendingCreateGroupId = group.id;
-  pendingCreateGroupName = group.name;
-  openCreatePanel(group.id, group.name);
-  forceCreateGroupSelection(group);
-  requestAnimationFrame(() => forceCreateGroupSelection(group));
-  setTimeout(() => forceCreateGroupSelection(group), 80);
-  setTimeout(() => forceCreateGroupSelection(group), 220);
+  openCreatePanelForGroup(group);
 }
 
 function hideListContextMenu() {
   listContextTargetGroup = null;
   listContextMenu?.classList.add("hidden");
+}
+
+function createHeadingAddMenu() {
+  if (headingAddMenu) return headingAddMenu;
+
+  headingAddMenu = document.createElement("div");
+  headingAddMenu.className = "memo-context-menu heading-add-menu hidden";
+  headingAddMenu.innerHTML = `
+    <button type="button" data-action="add-group"><span class="menu-icon">+</span><span>그룹 추가</span></button>
+    <button type="button" data-action="add-note"><span class="menu-icon">+</span><span>메모 추가</span></button>
+  `;
+  headingAddMenu.addEventListener("mousedown", (event) => event.preventDefault());
+  headingAddMenu.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    const action = button.dataset.action;
+    hideHeadingAddMenu();
+
+    if (action === "add-group") {
+      openAddGroupDialog();
+      return;
+    }
+
+    if (action === "add-note") {
+      openCreatePanelForGroup(appState.groups[0] || null);
+    }
+  });
+  document.body.append(headingAddMenu);
+  return headingAddMenu;
+}
+
+function showHeadingAddMenu(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  hideMemoContextMenu();
+  hideListContextMenu();
+
+  const menu = createHeadingAddMenu();
+  menu.classList.remove("hidden");
+  const rect = els.newGroupBtn.getBoundingClientRect();
+  const width = menu.offsetWidth || 132;
+  const x = Math.min(rect.left, window.innerWidth - width - 8);
+  const y = rect.bottom + 6;
+  menu.style.left = `${Math.max(8, x)}px`;
+  menu.style.top = `${Math.max(8, y)}px`;
+}
+
+function hideHeadingAddMenu() {
+  headingAddMenu?.classList.add("hidden");
 }
 
 function startInlineNoteEdit(card, target, options = {}) {
@@ -2468,24 +2516,29 @@ function createAddCard(group, groupIndex = -1) {
     event.stopPropagation();
     event.stopImmediatePropagation();
     if (!group) return;
-    pendingCreateGroupId = group.id;
-    pendingCreateGroupName = group.name;
-    openCreatePanel(group.id, group.name);
-    forceCreateGroupSelection(group);
-    requestAnimationFrame(() => forceCreateGroupSelection(group));
-    setTimeout(() => forceCreateGroupSelection(group), 80);
-    setTimeout(() => forceCreateGroupSelection(group), 220);
+    openCreatePanelForGroup(group);
   });
   return button;
 }
 
-function openCreatePanelFromAddButton(button) {
-  const group = resolveCreateGroupFromAddButton(button);
-  openCreatePanel(group?.id, group?.name);
+function openCreatePanelForGroup(group) {
+  if (!group) {
+    openCreatePanel();
+    return;
+  }
+
+  pendingCreateGroupId = group.id;
+  pendingCreateGroupName = group.name;
+  openCreatePanel(group.id, group.name);
   forceCreateGroupSelection(group);
   requestAnimationFrame(() => forceCreateGroupSelection(group));
   setTimeout(() => forceCreateGroupSelection(group), 80);
   setTimeout(() => forceCreateGroupSelection(group), 220);
+}
+
+function openCreatePanelFromAddButton(button) {
+  const group = resolveCreateGroupFromAddButton(button);
+  openCreatePanelForGroup(group);
 }
 
 function resolveCreateGroupFromAddButton(button) {
@@ -3113,6 +3166,7 @@ function bindEvents() {
   document.addEventListener("click", (event) => {
     hideMemoContextMenu();
     hideListContextMenu();
+    hideHeadingAddMenu();
     if (!event.target.closest(".font-size-control")) {
       closeInlineFontSizeMenus();
     }
@@ -3142,7 +3196,7 @@ function bindEvents() {
     openCreatePanelFromAddButton(addButton);
   }, true);
 
-  els.newGroupBtn.addEventListener("click", openAddGroupDialog);
+  els.newGroupBtn.addEventListener("click", showHeadingAddMenu);
   els.allViewBtn.addEventListener("click", async () => {
     appState.settings.viewMode = "all";
     await saveState();
@@ -3390,9 +3444,10 @@ function bindEvents() {
   els.memoList?.addEventListener("contextmenu", showListContextMenu);
 
   document.addEventListener("mousedown", (event) => {
-    if (event.target.closest(".memo-context-menu, .memo-list-context-menu")) return;
+    if (event.target.closest(".memo-context-menu, .memo-list-context-menu, .heading-add-menu")) return;
     hideMemoContextMenu();
     hideListContextMenu();
+    hideHeadingAddMenu();
 
     if (!els.groupPicker.contains(event.target)) {
       closeGroupPicker();
