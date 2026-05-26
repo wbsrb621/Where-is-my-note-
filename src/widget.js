@@ -2,7 +2,6 @@ const widgetList = document.getElementById("widgetList");
 const widgetPager = document.getElementById("widgetPager");
 const widgetPrevPageBtn = document.getElementById("widgetPrevPageBtn");
 const widgetNextPageBtn = document.getElementById("widgetNextPageBtn");
-const widgetAddNoteBtn = document.getElementById("widgetAddNoteBtn");
 const openMainBtn = document.getElementById("openMainBtn");
 const widgetCommandDrawer = document.querySelector(".widget-command-drawer");
 const widgetDrawerTrigger = document.querySelector(".widget-drawer-trigger");
@@ -360,6 +359,18 @@ function renderPinnedNotes(notes) {
   widgetPager.classList.toggle("hidden", pageCount <= 1);
   widgetPrevPageBtn.disabled = currentWidgetPage === 0;
   widgetNextPageBtn.disabled = currentWidgetPage >= pageCount - 1;
+
+  const addButton = document.createElement("button");
+  addButton.id = "widgetAddNoteBtn";
+  addButton.className = "widget-add-note-button";
+  addButton.type = "button";
+  addButton.title = "새 메모 추가";
+  addButton.textContent = "+";
+  addButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    await addBlankWidgetNote();
+  });
+  widgetList.append(addButton);
 
   visibleNotes.forEach((note) => {
     const card = document.createElement("article");
@@ -808,10 +819,6 @@ requestAnimationFrame(refreshWidgetCommandDirection);
 
 widgetPrevPageBtn.addEventListener("click", () => goToWidgetPage(-1));
 widgetNextPageBtn.addEventListener("click", () => goToWidgetPage(1));
-widgetAddNoteBtn.addEventListener("click", async (event) => {
-  event.preventDefault();
-  await addBlankWidgetNote();
-});
 widgetPrevPageBtn.addEventListener("dragover", (event) => {
   if (!draggedNoteId) return;
   event.preventDefault();

@@ -178,7 +178,7 @@ body.widget-position-left .widget-note.editing {
   flex: 0 0 auto;
   width: 26px;
   height: 26px;
-  margin: 8px 7px 0 auto;
+  margin: 0 6px 6px auto;
   border: 1px solid rgba(210, 210, 210, 0.9);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.94);
@@ -194,6 +194,11 @@ body.widget-position-left .widget-note.editing {
 
 .widget-add-note-button:hover {
   background: #f0f0ee;
+}
+
+body.widget-position-left .widget-add-note-button {
+  margin-right: auto;
+  margin-left: 6px;
 }
 
 .widget-actions {
@@ -703,7 +708,6 @@ body.widget-position-left .widget-note-created-time {
 }
 
 body.widget-position-left .widget-pager,
-body.widget-position-left .widget-add-note-button,
 body.widget-position-left .widget-command-drawer,
 body.widget-position-left .widget-quit-menu {
   margin-right: auto;
