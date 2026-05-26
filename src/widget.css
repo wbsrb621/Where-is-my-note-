@@ -62,8 +62,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 220px;
+  width: 332px;
   padding: 4px 0 4px 4px;
+  align-items: flex-end;
 }
 
 .widget-note {
@@ -87,6 +88,7 @@ body.widget-position-left {
 
 body.widget-position-left .widget-list {
   padding: 4px 4px 4px 0;
+  align-items: flex-start;
 }
 
 body.widget-position-left .widget-note {

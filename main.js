@@ -344,7 +344,7 @@ function getWidgetDisplay(settings = {}) {
 function getWidgetBoundsForSettings(settings = {}) {
   const display = getWidgetDisplay(settings);
   const workArea = display.workArea;
-  const width = 220;
+  const width = 332;
   const height = Math.min(900, workArea.height - 40);
   const currentBounds = widgetWindow && !widgetWindow.isDestroyed()
     ? widgetWindow.getBounds()
