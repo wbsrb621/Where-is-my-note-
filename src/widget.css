@@ -63,6 +63,7 @@ body {
   flex-direction: column;
   gap: 10px;
   width: 332px;
+  margin-top: var(--widget-top-offset, 120px);
   padding: 4px 0 4px 4px;
   align-items: flex-end;
 }

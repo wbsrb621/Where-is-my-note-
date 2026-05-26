@@ -55,13 +55,36 @@ function applyWidgetVisualSettings(settings = {}) {
   document.body.classList.toggle("widget-position-left", normalized.widgetPosition === "left");
 }
 
+function getWidgetListTopOffset() {
+  const value = Number.parseFloat(
+    document.documentElement.style.getPropertyValue("--widget-top-offset")
+  );
+  if (Number.isFinite(value)) return value;
+  return 120;
+}
+
+function setWidgetListTopOffset(value) {
+  const listRect = widgetList.getBoundingClientRect();
+  const bottomTarget = widgetQuitMenu && !widgetQuitMenu.classList.contains("hidden")
+    ? widgetQuitMenu
+    : widgetCommandDrawer;
+  const bottomRect = (bottomTarget || widgetList).getBoundingClientRect();
+  const contentHeight = Math.max(0, bottomRect.bottom - listRect.top);
+  const minOffset = 10;
+  const maxOffset = Math.max(minOffset, window.innerHeight - 10 - contentHeight);
+  const nextOffset = Math.max(minOffset, Math.min(maxOffset, Math.round(value)));
+  document.documentElement.style.setProperty("--widget-top-offset", `${nextOffset}px`);
+  refreshWidgetCommandDirection();
+}
+
 function getWidgetPageSize() {
   const noteHeight = normalizeWidgetSettings(appData.settings).widgetNoteHeight;
   const noteGap = 10;
   const listPadding = 8;
   const pagerHeight = currentPinnedNotes.length > 0 ? 36 : 0;
   const commandHeight = 34;
-  const availableHeight = Math.max(80, window.innerHeight - pagerHeight - commandHeight - listPadding);
+  const topOffset = getWidgetListTopOffset();
+  const availableHeight = Math.max(80, window.innerHeight - topOffset - pagerHeight - commandHeight - listPadding);
   return Math.max(1, Math.floor((availableHeight + noteGap) / (noteHeight + noteGap)));
 }
 
@@ -846,8 +869,7 @@ widgetDrawerTrigger.addEventListener("pointerdown", async (event) => {
   widgetDragState = {
     pointerId: event.pointerId,
     startScreenY: event.screenY,
-    startY: bounds.y,
-    metrics: getWidgetMoveMetrics()
+    startY: getWidgetListTopOffset()
   };
   setWidgetMouseIgnoring(false);
   widgetDrawerTrigger.setPointerCapture(event.pointerId);
@@ -860,11 +882,7 @@ widgetDrawerTrigger.addEventListener("pointermove", (event) => {
   if (!widgetDragState || widgetDragState.pointerId !== event.pointerId) return;
 
   const deltaY = event.screenY - widgetDragState.startScreenY;
-  window.wmn.moveWidgetToY(widgetDragState.startY + deltaY, widgetDragState.metrics)
-    .then((bounds) => {
-      if (!bounds) return;
-      updateWidgetCommandDirection(bounds);
-    });
+  setWidgetListTopOffset(widgetDragState.startY + deltaY);
 });
 
 function stopWidgetPositionDrag(event) {
@@ -876,6 +894,7 @@ function stopWidgetPositionDrag(event) {
   }
   widgetDragState = null;
   document.body.classList.remove("widget-position-dragging");
+  renderPinnedNotes(currentPinnedNotes);
   refreshWidgetCommandDirection();
   setWidgetMouseIgnoring(false);
 }

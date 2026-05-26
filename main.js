@@ -345,16 +345,11 @@ function getWidgetBoundsForSettings(settings = {}) {
   const display = getWidgetDisplay(settings);
   const workArea = display.workArea;
   const width = 332;
-  const height = Math.min(900, workArea.height - 40);
-  const currentBounds = widgetWindow && !widgetWindow.isDestroyed()
-    ? widgetWindow.getBounds()
-    : null;
+  const height = workArea.height;
   const x = settings.widgetPosition === "left"
     ? workArea.x
     : workArea.x + workArea.width - width;
-  const preferredY = currentBounds?.y ?? workArea.y + 120;
-  const maxY = Math.max(workArea.y, workArea.y + workArea.height - height);
-  const y = Math.max(workArea.y, Math.min(maxY, preferredY));
+  const y = workArea.y;
 
   return { x, y, width, height };
 }
